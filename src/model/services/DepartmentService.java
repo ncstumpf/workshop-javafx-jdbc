@@ -12,4 +12,8 @@ public class DepartmentService {
 	public List<Department> findAll() {
 		return dao.findAll();
 	}
+	
+	public void insert(Department dep) {
+		dao.insert(dep);
+	}
 }
