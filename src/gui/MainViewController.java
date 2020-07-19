@@ -34,7 +34,7 @@ public class MainViewController implements Initializable{
 	@FXML
 	public void onMenuItemDepartmentAction() {
 		loadView("/gui/DepartmentList.fxml", (DepartmentListController controller)-> {
-			controller.setDepartmentService(new DepartmentService());
+			controller.setDepartmentService(new DepartmentService());//Using a lambda expression, instantiate the department service and prepare the ground to receive the new view
 			controller.updateTableView();
 		});;
 	}
@@ -50,20 +50,20 @@ public class MainViewController implements Initializable{
 		
 	}
 	
-	private synchronized <T> void loadView (String absoluteName, Consumer <T> initializingAction) {
+	private synchronized <T> void loadView (String absoluteName, Consumer <T> initializingAction) {// the T can be substituted for a controller
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
-			VBox newVBox = loader.load();
-			Scene mainScene = Main.getMainScene();
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));//Load the new view that will be displayed
+			VBox newVBox = loader.load();//throw the new view in a VBox
+			Scene mainScene = Main.getMainScene();//takes the main scene from the Main and kind of copy it
 			
-			VBox mainVBox = (VBox)((ScrollPane) mainScene.getRoot()).getContent();
-			Node mainMenu = mainVBox.getChildren().get(0);
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(newVBox.getChildren());
+			VBox mainVBox = (VBox)((ScrollPane) mainScene.getRoot()).getContent();//saves the content of the scrollpane (downcasting) and put in a VBox. Root is the first element of the view
+			Node mainMenu = mainVBox.getChildren().get(0);//takes the menu from the top and saves in the Node;
+			mainVBox.getChildren().clear();//erases everything
+			mainVBox.getChildren().add(mainMenu);//add the menu saved
+			mainVBox.getChildren().addAll(newVBox.getChildren());//add the new scene inside a VBox
 			
-			T controller = loader.getController();
-			initializingAction.accept(controller);
+			T controller = loader.getController();//loads the controller (can be the Department or Seller)
+			initializingAction.accept(controller);//Consumer method to apply the methods that were injected when this method is called
 
 		} catch (IOException e) {
 			Alerts.ShowAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
