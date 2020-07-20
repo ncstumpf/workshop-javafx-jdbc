@@ -86,6 +86,7 @@ public class DepartmentListController implements Initializable{
 			
 			DepartmentFormController controller = loader.getController();//loads the controller of the view on top
 			controller.setDepartment(obj); //received from the action button, will set the department (in case of new, info will be null)
+			controller.setDeparmentService(new DepartmentService());
 			controller.updateFormData();//out the info in the text fields
 			
 			Stage dialogStage = new Stage();//Stage, which is the window

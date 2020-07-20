@@ -24,7 +24,7 @@ public class Seller implements Serializable {
 		this.department = department;
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -34,7 +34,7 @@ public class Seller implements Serializable {
 	public void setDepartment(Department department) {
 		this.department = department;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

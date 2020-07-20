@@ -10,5 +10,13 @@ public class Utils {
 		return (Stage)((Node) event.getSource()).getScene().getWindow();//getSource gets everything, is not specific, so is downcasted to Node;
 		//the method take the scene from the node, and gets the windows from the scene, and the window is downcasted to Stage;
 	}
+	public static Integer tryParseToInt(String str) {
+		try {
+			return Integer.parseInt(str);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
 
 }
