@@ -46,7 +46,9 @@ public class DepartmentListController implements Initializable{
 	
 	@FXML
 	public void onBtNewAction(ActionEvent event) {//When pressing the button, event captures the reference to the stage;
-		createDialogForm(Utils.currentStage(event), "/gui/DepartmentForm.fxml");//When called, the method receives the Stage and the path to the gui;
+		Stage parentStage = Utils.currentStage(event);
+		Department obj = new Department();
+		createDialogForm(parentStage, obj, "/gui/DepartmentForm.fxml");//When called, the method receives the Stage and the path to the gui;
 	}
 	
 
@@ -70,17 +72,21 @@ public class DepartmentListController implements Initializable{
 	
 	public void updateTableView() {//turns the list into an observable list, which can be shown in the program
 		if (service == null) {
-			throw new IllegalStateException("Service was null");			
+			throw new IllegalStateException("Service was null");//defensive programming			
 		}
-		List <Department> list = service.findAll();
-		obsList = FXCollections.observableArrayList(list);
-		tableViewDepartment.setItems(obsList);
+		List <Department> list = service.findAll();//create list
+		obsList = FXCollections.observableArrayList(list);//turn to observable
+		tableViewDepartment.setItems(obsList);//pass to the table view
 	}
 	
-	private void createDialogForm(Stage currentStage, String absoluteName) {
+	private void createDialogForm(Stage currentStage, Department obj, String absoluteName) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));//new FXML get all the resources from the view that will be on top;
 			Pane pane = loader.load();//Because we used an anchor pane as view;
+			
+			DepartmentFormController controller = loader.getController();//loads the controller of the view on top
+			controller.setDepartment(obj); //received from the action button, will set the department (in case of new, info will be null)
+			controller.updateFormData();//out the info in the text fields
 			
 			Stage dialogStage = new Stage();//Stage, which is the window
 			dialogStage.setTitle("Enter department data: ");
