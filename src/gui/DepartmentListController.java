@@ -26,7 +26,7 @@ import javafx.stage.Stage;
 import model.entities.Department;
 import model.services.DepartmentService;
 
-public class DepartmentListController implements Initializable{
+public class DepartmentListController implements Initializable, DataChangedListener{
 	
 	private DepartmentService service;//Will be instantiated when the method is called from the MainViewController
 	
@@ -87,7 +87,8 @@ public class DepartmentListController implements Initializable{
 			DepartmentFormController controller = loader.getController();//loads the controller of the view on top
 			controller.setDepartment(obj); //received from the action button, will set the department (in case of new, info will be null)
 			controller.setDeparmentService(new DepartmentService());
-			controller.updateFormData();//out the info in the text fields
+			controller.subscribeDataChangeListener(this);
+			controller.updateFormData();//put the info in the text fields
 			
 			Stage dialogStage = new Stage();//Stage, which is the window
 			dialogStage.setTitle("Enter department data: ");
@@ -99,5 +100,11 @@ public class DepartmentListController implements Initializable{
 		} catch (IOException e) {
 			Alerts.ShowAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
+	}
+
+
+	@Override
+	public void onDataChanged() {
+		updateTableView();
 	}
 }

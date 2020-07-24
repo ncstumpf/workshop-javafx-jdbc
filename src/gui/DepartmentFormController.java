@@ -1,6 +1,8 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
@@ -10,7 +12,6 @@ import gui.util.Utils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,6 +25,8 @@ public class DepartmentFormController implements Initializable {
 	private Department entity;
 	
 	private DepartmentService service;
+	
+	private List <DataChangedListener> dataChangedListeners = new ArrayList<>();
 	
 	@FXML
 	private Button btSave;
@@ -58,6 +61,7 @@ public class DepartmentFormController implements Initializable {
 		try {
 			entity = getFormData();
 			service.saveOrUpdate(entity);
+			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
 		}
 		catch (DbException e) {
@@ -65,6 +69,11 @@ public class DepartmentFormController implements Initializable {
 		}
 		
 	}
+	private void notifyDataChangeListeners() {
+		for (DataChangedListener listener : dataChangedListeners)
+			listener.onDataChanged();
+	}
+
 	@FXML
 	public void onBtCancelAction(ActionEvent event) {
 		Utils.currentStage(event).close();
@@ -95,6 +104,10 @@ public class DepartmentFormController implements Initializable {
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
 		obj.setName(txtName.getText());
 		return obj;
+	}
+	
+	public void subscribeDataChangeListener(DataChangedListener listener) {
+		dataChangedListeners.add(listener);
 	}
 	
 }
@@ -128,5 +141,12 @@ PUT EVERYTHING INSIDE A TRY BLOCK AND CATCH DB EXCEPTION SHOWING ALERT
 ERROR SAVING OBJECT, NULL, ERROR
 TAKE THE EVENT AND USE IT TO CLOSE USING CURRENTSTAGE FROM UTILS (DO THE SAME IN CANCEL)
 
+//create listener
+ * 
+ * primary create the interface datachangedlistener and empty void ondatachanged
+ * departmentformcontroller will have a list of datachangelistener interested in receive the event
+ * create a method to add listeners called subscribedatalistener
+ * create a method that is called when press the save button called notifydatachangelistener, which will send the message to them using ondatachanged
+ * lidtcontroller implements listener with updatetableview and in dialog form put subscribelistener sending "this"
 
 */
