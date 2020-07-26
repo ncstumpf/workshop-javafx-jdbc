@@ -3,11 +3,14 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import application.Main;
+import db.DbIntegrityException;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +20,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -38,6 +43,12 @@ public class DepartmentListController implements Initializable, DataChangedListe
 
 	@FXML
 	private TableColumn<Department, String> tableColumnName;
+	
+	@FXML
+	private TableColumn<Department, Department> tableColumnEDIT;
+
+	@FXML
+	private TableColumn<Department, Department> tableColumnRemove;
 
 	@FXML
 	private Button btNew;	
@@ -77,8 +88,12 @@ public class DepartmentListController implements Initializable, DataChangedListe
 		List <Department> list = service.findAll();//create list
 		obsList = FXCollections.observableArrayList(list);//turn to observable
 		tableViewDepartment.setItems(obsList);//pass to the table view
+		initEditButtons();
+		initRemoveButtons();
 	}
 	
+
+
 	private void createDialogForm(Stage currentStage, Department obj, String absoluteName) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));//new FXML get all the resources from the view that will be on top;
@@ -101,6 +116,66 @@ public class DepartmentListController implements Initializable, DataChangedListe
 			Alerts.ShowAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
 	}
+	
+	private void initEditButtons() {
+		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));//standard
+		tableColumnEDIT.setCellFactory(param -> new TableCell<Department, Department>(){//just changes the type of the TableCell
+			private final Button button = new Button("edit"); //you instantiate the button, changing the name and which text is displayed
+			@Override
+			protected void updateItem(Department obj, boolean empty) {//just changes the object
+				super.updateItem(obj, empty);
+				
+				if(obj == null) {
+					setGraphic(null);
+					return;
+				}
+				
+				setGraphic(button);
+				button.setOnAction(
+						event -> createDialogForm(//here you dictate what is going to happen if you press the button (edit), where you could put the final (like delete from there);
+								Utils.currentStage(event), obj, "/gui/DepartmentForm.fxml"));
+			}
+		});
+		
+	}
+
+	
+	private void initRemoveButtons() {
+		tableColumnRemove.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));//standard
+		tableColumnRemove.setCellFactory(param -> new TableCell<Department, Department>(){//just changes the type of the TableCell
+			private final Button button = new Button("remove"); //you instantiate the button, changing the name and which text is displayed
+			@Override
+			protected void updateItem(Department obj, boolean empty) {//just changes the object
+				super.updateItem(obj, empty);
+				
+				if(obj == null) {
+					setGraphic(null);
+					return;
+				}
+				
+				setGraphic(button);
+				button.setOnAction(
+						event -> removeEntity(obj));
+			}
+		});
+		
+	}
+
+	protected void removeEntity(Department obj) {
+		Optional<ButtonType> result = Alerts.showConfirmation("Confirmation", "Are you sure to delete?");
+		if (result.get()== ButtonType.OK) {
+			if (service==null)
+				throw new IllegalStateException("Service was null");
+			try {
+				service.remove(obj);
+				updateTableView();
+			}
+			catch (DbIntegrityException e) {
+				Alerts.ShowAlert("Error removing object", null, e.getMessage(), AlertType.ERROR);
+			}
+			
+		}
+	}
 
 
 	@Override
@@ -108,3 +183,30 @@ public class DepartmentListController implements Initializable, DataChangedListe
 		updateTableView();
 	}
 }
+
+/*
+ Create a new tablecolumn called tableColumnEDIT recei9ving Department,Department.
+ Create a initEditButtons() which has a ready code, just copy and paste.
+ This method will be called in updateTableView
+ On the FXML file, create new table receiving the EDIT
+  
+  to the same to create the deletebutton, but to do that is necessary to create um static optionL buttontype ShowConfirmation which will be responsible for creating a window to confirm returning a show and wait alert\
+  create a void remove in depService
+  create a tablecolumnremove an initRemoveButtons (copying the last one but receiving the event removeEntity
+  private void removeEntity will send alert confirmation with the sentence r u sure to delete
+  the result will be inside an Optional result. After check if the buttonType of the result.get() is equal to OK
+  Inside the if, check if is null to throw IllegalState, and after try with remove and updateTableView
+  after put another catch with dbintegrityException and check in the class at 8min
+  call method in updateTableView
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+  
+ 
+ * */
