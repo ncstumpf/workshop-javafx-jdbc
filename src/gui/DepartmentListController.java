@@ -155,7 +155,7 @@ public class DepartmentListController implements Initializable, DataChangedListe
 				
 				setGraphic(button);
 				button.setOnAction(
-						event -> removeEntity(obj));
+						event -> removeEntity(obj));// calls method that will instantiate a window to confirm if is wanted to delete the obj
 			}
 		});
 		
@@ -170,7 +170,7 @@ public class DepartmentListController implements Initializable, DataChangedListe
 				service.remove(obj);
 				updateTableView();
 			}
-			catch (DbIntegrityException e) {
+			catch (DbIntegrityException e) {//exception from the DAO
 				Alerts.ShowAlert("Error removing object", null, e.getMessage(), AlertType.ERROR);
 			}
 			
