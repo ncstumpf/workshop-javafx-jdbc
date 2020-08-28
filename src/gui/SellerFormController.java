@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -19,7 +21,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
-import javafx.util.Callback;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -27,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.util.Callback;
 import model.entities.Department;
 import model.entities.Seller;
 import model.exceptions.ValidationException;
@@ -161,16 +163,37 @@ public class SellerFormController implements Initializable {
 		
 	}
 
-	private Seller getFormData() {// take the information from the window and check if there is errors. Passing,
+	private Seller getFormData() {// take the information from the window when is saved and check if there is errors. Passing,
 									// returns a department with those values
 		Seller obj = new Seller();
 		ValidationException exception = new ValidationException("Validation Error");
-		obj.setId(Utils.tryParseToInt(txtId.getText()));
+		
+		obj.setId(Utils.tryParseToInt(txtId.getText()));//ID
 
-		if (txtName.getText() == null || txtName.getText().trim().equals(""))
-			exception.AddErrors("Name", "Field can't be empty");
+		if (txtName.getText() == null || txtName.getText().trim().equals(""))//NAME
+			exception.AddErrors("name", "Field can't be empty");
 		else
 			obj.setName(txtName.getText());
+		
+		if (txtEmail.getText() == null || txtEmail.getText().trim().equals(""))//EMAIL	
+			exception.AddErrors("email", "Field can't be empty");
+		else
+			obj.setEmail(txtEmail.getText());
+		
+		if (dpBirthDate.getValue()==null)
+			exception.AddErrors("birthDate", "Field can't be empty");//birth DATE
+		else {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			obj.setBirthDate(Date.from(instant));
+		}
+		
+		if (txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals(""))	
+			exception.AddErrors("baseSalary", "Field can't be empty");
+		else
+		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));//BASE SALARY
+		
+		obj.setDepartment(comboBoxDepartment.getValue());;
+			
 
 		if (exception.getErrors().size() > 0) {
 			throw exception;
@@ -189,7 +212,7 @@ public class SellerFormController implements Initializable {
 			
 		List <Department> list = departmentService.findAll();//take the departments from the database
 		obsList = FXCollections.observableArrayList(list);//make them observable
-		comboBoxDepartment.setItems(obsList);//throw them into the combobox on the view
+		comboBoxDepartment.setItems(obsList);//throw them into the combo box on the view
 	}
 	
 	private void initializeComboBoxDepartment() {//standard, to apply or copy here or check in the PDF (this project or javafx class)
@@ -209,8 +232,13 @@ public class SellerFormController implements Initializable {
 	public void setErrorMessages(Map<String, String> errors) {// throw the error messages in the error label on the
 																// window
 		Set<String> fields = errors.keySet();
-		if (fields.contains("Name"))
-			labelErrorName.setText(errors.get("Name"));
+		
+		
+		labelErrorName.setText(fields.contains("name") ? errors.get("name") : "");
+		//test if the set fields contains name.If it does, will take the errors from there, if not will be empty
+		labelErrorEmail.setText(fields.contains("email") ? errors.get("email") : "");
+		labelErrorBaseSalary.setText(fields.contains("baseSalary") ? errors.get("baseSalary") : "");
+		labelErrorBirthDate.setText(fields.contains("birthDate") ? errors.get("birthDate") : "");		
 	}
 
 }
