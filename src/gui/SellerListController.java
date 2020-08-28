@@ -30,6 +30,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangedListener{
@@ -117,7 +118,8 @@ public class SellerListController implements Initializable, DataChangedListener{
 			
 			SellerFormController controller = loader.getController();//loads the controller of the view on top
 			controller.setSeller(obj); //received from the action button, will set the department (in case of new, info will be null)
-			controller.setDeparmentService(new SellerService());
+			controller.setServices(new SellerService(), new DepartmentService());
+			controller.loadAssociatedObjects();
 			controller.subscribeDataChangeListener(this);
 			controller.updateFormData();//put the info in the text fields
 			
@@ -129,6 +131,7 @@ public class SellerListController implements Initializable, DataChangedListener{
 			dialogStage.initModality(Modality.WINDOW_MODAL);//Without that, you'd be able to use the parent page with the children being used independently (just works if it has an owner);
 			dialogStage.showAndWait();//without that, nothing happens;
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.ShowAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
 	}

@@ -113,6 +113,7 @@ public class DepartmentListController implements Initializable, DataChangedListe
 			dialogStage.initModality(Modality.WINDOW_MODAL);//Without that, you'd be able to use the parent page with the children being used independently (just works if it has an owner);
 			dialogStage.showAndWait();//without that, nothing happens;
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.ShowAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
 	}
